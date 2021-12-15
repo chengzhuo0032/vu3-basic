@@ -45,7 +45,7 @@ export default defineComponent({
       persoon: {},
     });
     const { x, y } = useMousePosition();
-    //完美支持数组和对象的操作  无需像2.0一样的vm.$set
+    //完美支持数组和对象的操作  无需像2.0一样的vm.$set   proxy
     data.numbers[0] = 5;
     data.persoon.name = "程卓";
     const refData = toRefs(data);
