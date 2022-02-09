@@ -12,12 +12,21 @@
     <button @click="updateGreeting">update greeting</button>
     <h1>x:{{ x }}</h1>
     <h1>x:{{ y }}</h1>
+    <div v-if="loading">Loading!....</div>
+    <div v-else>
+      <img :src="result[0].url" />
+    </div>
+    <!-- 应该渲染在app中的组件成功的渲染到了model中 -->
+    <Modal :isOpen="modalIsOpen" @close-modal="closeModal">这是一个弹框</Modal>
+    <button @click="openModal">打开</button>
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive, toRefs, ref, watch } from "vue";
 import useMousePosition from "./hooks/useMousePosition";
+import useURLLoader from "./hooks/useURLLoader";
+import Modal from "./components/Modal.vue";
 interface DataProps {
   count: number;
   double: number;
@@ -25,8 +34,22 @@ interface DataProps {
   numbers: number[];
   persoon: { name?: string };
 }
+
+// interface DogResult {
+//   message: string;
+//   status: string;
+// }
+
+interface CatResult {
+  id: string;
+  url: string;
+  width: number;
+  height: number;
+}
 export default defineComponent({
   name: "App",
+  components: { Modal },
+
   setup() {
     // const count = ref(0);
     // const double = computed(() => {
@@ -61,11 +84,34 @@ export default defineComponent({
       document.title = `title${greetings.value}`;
     });
     document.title = `title${greetings.value}`;
+
+    const { result, loading } = useURLLoader<CatResult[]>(
+      "https://api.thecatapi.com/v1/images/search?limit=1"
+    );
+    watch(result, () => {
+      if (result.value) console.log("value", result.value[0].url);
+    });
+
+    const modalIsOpen = ref(false);
+
+    const openModal = () => {
+      modalIsOpen.value = true;
+    };
+
+    const closeModal = () => {
+      modalIsOpen.value = false;
+    };
+
     return {
       ...refData,
       updateGreeting,
       x,
       y,
+      result,
+      loading,
+      modalIsOpen,
+      openModal,
+      closeModal,
     };
   },
 });
